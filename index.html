@@ -131,9 +131,8 @@ if(sb&&!SB_URL.includes('YOUR-'))sb.auth.onAuthStateChange((_e,ss)=>{me=ss?.user
 function savedP(){return`<div class=pg><h2>Palet Favorit</h2><p>${me?`Masuk sebagai <b>${esc(me.email)}</b> <button class="bt w" data-a=logout>Keluar</button>`:'Masuk dulu untuk melihat palet favoritmu.'}</p><div class=ex id=sv></div></div>`}
 async function loadSaved(){if(!me||!ok())return;const{data,error}=await sb.from('palettes').select('id,name,colors').order('created_at',{ascending:false}),o=$('#sv');if(!o)return;o.innerHTML=error?esc(error.message):data.length?data.map(r=>`<div class=cd><div class=ps data-a=use data-c="${esc(r.colors.join(','))}">${r.colors.map(x=>`<i style="background:${esc(x)}"></i>`).join('')}</div><b>${esc(r.name)}</b> <button class="bt w" data-a=rm data-id="${esc(r.id)}" style="padding:2px 8px">🗑️</button></div>`).join(''):'Belum ada palet tersimpan. Buat di Generator lalu tekan ❤️ Simpan.'}
 Object.assign(ACT,{
-auth:()=>{if(ok())ov(`<h2>Masuk / Daftar</h2><p>Simpan palet favoritmu dan buka dari perangkat mana saja.</p><input id=em type=email placeholder="Email" style="${IN}"><input id=pw type=password placeholder="Kata sandi (min. 6 karakter)" style="${IN}"><p><button class=bt data-a=login>Masuk</button> <button class="bt w" data-a=signup>Daftar</button></p><p id=ae></p>`)},
-login:async()=>{const{error}=await sb.auth.signInWithPassword(cred());if(error)$('#ae').textContent=error.message;else{$('.ov')?.remove();toast('Berhasil masuk')}},
-signup:async()=>{const{data,error}=await sb.auth.signUp(cred());if(error)$('#ae').textContent=error.message;else if(!data.session)$('#ae').textContent='Cek emailmu untuk konfirmasi, lalu masuk.';else{$('.ov')?.remove();toast('Akun dibuat')}},
+auth:()=>{if(ok())ov(`<h2>Masuk</h2><p>Masuk dengan akun Google untuk menyimpan palet favoritmu.</p><p><button class=bt data-a=google>🔐 Masuk dengan Google</button></p>`)},
+google:()=>sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href.split('#')[0]}}),
 logout:async()=>{await sb.auth.signOut();toast('Sudah keluar');location.hash='#/'},
 fav:()=>{location.hash='#/saved'},
 save:()=>{if(!ok())return;if(!me)return ACT.auth();ov(`<h3>Simpan palet</h3><input id=pn2 maxlength=60 value="Palet ${new Date().toLocaleDateString('id-ID')}" style="${IN}"><p><button class=bt data-a=dosave>❤️ Simpan</button></p>`)},
